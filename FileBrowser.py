@@ -56,13 +56,12 @@ def good_response(request):
         response_h1_title = "<h1>Index of " + origin_path + "</h1><HR>"
         file_list = os.listdir(request_full_path)
         if (origin_path != '/'):
-            response_html_body += "<a href=.."  + "/>../</a><br>"
+            response_html_body += "<a href=.." + "/>../</a><br>"
         for i in file_list:
             if os.path.isdir(request_full_path + str(i)):
                 response_html_body += "<a href=" + origin_path + handle_url(str(i)) + "/>" + str(i) + "/</a><br>"
             else:
                 response_html_body += "<a href=" + origin_path + handle_url(str(i)) + ">" + str(i) + "</a><br>"
-
 
         final_header = response_start_line + response_headers
         final_file = response_front + response_h1_title + response_html_body + response_after
@@ -79,20 +78,20 @@ def good_response(request):
             response_start_line = "HTTP/1.0 206 OK\r\n"
             size = os.path.getsize(request_full_path)
             start, end = handle_range(request['Range'], size=size)
-            response_headers += 'Accept-Ranges: bytes\r\n' + 'Content-Range:bytes=' + str(start) + '-' + str(
-                end) + '\r\n'
+            response_headers += 'Accept-Ranges: bytes\r\n' + 'Content-Range: bytes ' + str(start) + '-' + str(
+                end) + "/" + str(size) + '\r\n'
             final_file = file.read()[start:end + 1]
         else:
-
             final_file = file.read()
 
         mime_type = mimetypes.guess_type(url=request_full_path, strict=False)
+        if mime_type is None:
+            mime_type = 'application/octet-stream'
         response_headers += "Content-type: " + str(mime_type[0]) + '\r\n\r\n'
         final_header = response_start_line + response_headers
 
         return final_header, final_file
     else:
-        print(request_full_path)
         return bad_request(404)
 
 
